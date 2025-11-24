@@ -1,23 +1,57 @@
-import Link from "next/link"; 
+import { prisma } from "@/lib/prisma";
+import { addNote, deleteNote } from "./crud";
 
+export default async function Home() {
+  // READ: Mengambil data dari database
+  const notes = await prisma.note.findMany({
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
 
-              <div className="absolute top-2 right-2 flex gap-2">
-                
-                <Link 
-                  href={`/edit/${note.id}`} 
-                  className="text-gray-400 hover:text-[#00e054] transition p-1 bg-[#14181c] rounded-full bg-opacity-50 hover:bg-opacity-100"
-                  title="Edit Review"
-                >
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                </Link>
+  return (
+    <main className="p-10 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-5">Latihan CRUD SQLite + Prisma</h1>
 
-                <form action={deleteNote.bind(null, note.id)}>
-                  <button 
-                    type="submit" 
-                    className="text-gray-400 hover:text-red-500 transition p-1 bg-[#14181c] rounded-full bg-opacity-50 hover:bg-opacity-100"
-                    title="Delete Review"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                  </button>
-                </form>
-              </div>
+      {/* Form CREATE */}
+      <form action={addNote} className="flex gap-2 mb-8">
+        <input
+          type="text"
+          name="content"
+          placeholder="Tulis catatan..."
+          className="border p-2 rounded w-full text-black"
+          required
+        />
+        <button 
+          type="submit" 
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Tambah
+        </button>
+      </form>
+
+      {/* List READ & DELETE */}
+      <ul className="space-y-3">
+        {notes.map((note) => (
+          <li key={note.id} className="border p-4 rounded flex justify-between items-center bg-gray-800 text-white">
+            <span>{note.content}</span>
+            
+            {/* Tombol Delete dibungkus form karena memanggil server action */}
+            <form action={deleteNote.bind(null, note.id)}>
+              <button 
+                type="submit" 
+                className="text-red-400 hover:text-red-600 text-sm"
+              >
+                Hapus
+              </button>
+            </form>
+          </li>
+        ))}
+        
+        {notes.length === 0 && (
+          <p className="text-gray-500 text-center">Belum ada catatan.</p>
+        )}
+      </ul>
+    </main>
+  );
+}
