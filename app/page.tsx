@@ -1,66 +1,57 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { prisma } from "@/lib/prisma";
+import { addNote, deleteNote } from "./crud";
 
-export default function Home() {
+export default async function Home() {
+  // READ: Mengambil data dari database
+  const notes = await prisma.note.findMany({
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="p-10 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-5">Latihan CRUD SQLite + Prisma</h1>
+
+      {/* Form CREATE */}
+      <form action={addNote} className="flex gap-2 mb-8">
+        <input
+          type="text"
+          name="content"
+          placeholder="Tulis catatan..."
+          className="border p-2 rounded w-full text-black"
+          required
         />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        <button 
+          type="submit" 
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Tambah
+        </button>
+      </form>
+
+      {/* List READ & DELETE */}
+      <ul className="space-y-3">
+        {notes.map((note) => (
+          <li key={note.id} className="border p-4 rounded flex justify-between items-center bg-gray-800 text-white">
+            <span>{note.content}</span>
+            
+            {/* Tombol Delete dibungkus form karena memanggil server action */}
+            <form action={deleteNote.bind(null, note.id)}>
+              <button 
+                type="submit" 
+                className="text-red-400 hover:text-red-600 text-sm"
+              >
+                Hapus
+              </button>
+            </form>
+          </li>
+        ))}
+        
+        {notes.length === 0 && (
+          <p className="text-gray-500 text-center">Belum ada catatan.</p>
+        )}
+      </ul>
+    </main>
   );
 }
