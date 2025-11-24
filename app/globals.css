@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --background: #14181c; /* Letterboxd Dark Background */
+  --background: #14181c; 
   --foreground: #ffffff;
-  --card-bg: #2c3440;    /* Letterboxd Card/Header Color */
-  --accent-green: #00e054; /* Letterboxd Green */
-  --accent-orange: #ff8000; /* Letterboxd Orange */
+  --card-bg: #2c3440;   
+  --accent-green: #00e054;
+  --accent-orange: #ff8000;
   --text-muted: #99aabb;
 }
 
